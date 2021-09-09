@@ -144,10 +144,12 @@ describe('useQuery Hook', () => {
         {
           request: { query, variables: { id: 1 } },
           result: { data: { hello: "world 1" } },
+          delay: 500,
         },
         {
           request: { query, variables: { id: 2 } },
           result: { data: { hello: "world 2" } },
+          delay: 500,
         },
       ];
 
@@ -157,7 +159,7 @@ describe('useQuery Hook', () => {
       );
 
       const { result, rerender, waitForNextUpdate } = renderHook(
-        ({ id }) => useQuery(query, { variables: { id }}),
+        ({ id }) => useQuery(query, { variables: { id }, notifyOnNetworkStatusChange: true }),
         { wrapper, initialProps: { id: 1 } },
       );
       expect(result.current.loading).toBe(true);
@@ -168,6 +170,9 @@ describe('useQuery Hook', () => {
       expect(result.current.data).toEqual({ hello: "world 1" });
 
       rerender({ id: 2 });
+      await waitForNextUpdate();
+      console.log(result.current.loading);
+      console.log(result.current.data);
       expect(result.current.loading).toBe(true);
       expect(result.current.data).toBe(undefined);
 
